@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnnotX Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 p-8 font-sans text-gray-800">
+    <div class="max-w-4xl mx-auto grid grid-cols-2 gap-8">
+        <!-- Source Text -->
+        <div class="bg-white p-6 rounded shadow">
+            <h2 class="font-bold mb-4 border-b pb-2">Document</h2>
+            <p id="source" class="leading-relaxed">The application uses an STM32 microcontroller running FreeRTOS. Sensor data is collected through SPI... The processed data is sent to a Raspberry Pi over UART and published to the backend using MQTT. The firmware is primarily written in C, while Python is used for data analysis.</p>
+        </div>
+
+        <!-- Tags -->
+        <div class="bg-white p-6 rounded shadow">
+            <h2 class="font-bold mb-4 border-b pb-2">Extracted Data</h2>
+            <div id="tags" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <script>
+        const data = {
+            "Hardware": ["STM32", "Raspberry Pi"],
+            "Software": ["FreeRTOS"],
+            "Protocols": ["SPI", "UART", "MQTT"],
+            "Languages": ["C", "Python"]
+        };
+        
+        const sourceEl = document.getElementById('source');
+        const originalText = sourceEl.innerHTML;
+
+        Object.entries(data).forEach(([category, items]) => {
+            const section = document.createElement('div');
+            section.innerHTML = `<h3 class="text-sm font-bold text-gray-500 mb-1">${category}</h3>`;
+            
+            items.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = "mr-2 mb-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm";
+                btn.innerText = item;
+                
+                // Added \\b to enforce word boundaries so "C" doesn't match the "c" in "application"
+                btn.onmouseenter = () => {
+                    const regex = new RegExp(`\\b(${item})\\b`, 'gi');
+                    sourceEl.innerHTML = originalText.replace(regex, `<mark class="bg-yellow-200 rounded px-1">$1</mark>`);
+                };
+                
+                btn.onmouseleave = () => sourceEl.innerHTML = originalText;
+                section.appendChild(btn);
+            });
+            document.getElementById('tags').appendChild(section);
+        });
+    </script>
+</body>
+</html>
